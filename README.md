@@ -21,9 +21,9 @@ P2P下载器:
 
 	调用Listen创建监听socket ,等待连接请求(listen,accept)  
 
-																		 ---->       客户端创建Client对象连接服务端(socket.bind)
+									---->       客户端创建Client对象连接服务端(socket.bind)
 
-																	    <----	     组织头部键值发起请求(connect,write)
+									<----	     组织头部键值发起请求(connect,write)
 
 	服务器收到请求创建新的socket并传给新线程
 
@@ -35,7 +35,7 @@ P2P下载器:
 
 	客户端发起文件列表请求 ---> 服务器响应一个文件列表
 
-    客户端发起下载请求 ---> 服务器传输数据
+    	客户端发起下载请求 ---> 服务器传输数据
 
 服务器功能: 
 
@@ -50,13 +50,13 @@ P2P下载器:
 3. 下载指定文件的功能
     
 
-问题:
+遇到的问题:
 
 	Q1:g++ httplib makefile 出错
 
 	A1:httplib库需要C++11支持  -std=0x /11
 
-    Q2:g++ -lboost_filesystem 出错 
+    	Q2:g++ -lboost_filesystem 出错 
 
 	A2:使用boost/filesystem库,  在g++需要这样写 -lboost_system -lboost_filesystem
 
@@ -84,7 +84,7 @@ P2P下载器:
 
 		  2.对所有主机发起配对请求.响应的便是在线主机.
 
-    Q8:搜索的具体细节?
+    	Q8:搜索的具体细节?
 
 	A8: 使用ipv4结构体接收网卡的ip和掩码信息,除去ipv4协议簇和本机换环网卡(inet_addr转换127.0.0.1);
 
@@ -94,7 +94,7 @@ P2P下载器:
 
 		接口: inet_addr 标准ip转数字 		inet_ntoa 数字转标准ip
 
-				  htonl  主机字节序转网络字节序    ntohl 网络字节序转主机字节序     
+		htonl  主机字节序转网络字节序    ntohl 网络字节序转主机字节序     
 
 	Q9:如何配对?
 
@@ -102,7 +102,7 @@ P2P下载器:
 
 	Q10:C++11线程的问题
 
-    A10: makefile 需要 -lpthread
+    	A10: makefile 需要 -lpthread
 
 			move(thr) 线程所有权转移,放入线程数组管理.  
 
@@ -114,27 +114,27 @@ P2P下载器:
 
 	A11:服务器扫描共享目录,将其添加到rsp中,客户端用file_list接收
 
-    Q12:如何整合和拆分rsp->body?
+    	Q12:如何整合和拆分rsp->body?
 
-    A12:服务器写的时候给每个文件名后面+'\n'标记,客户端读的时候用bf::split函数拆分接收
+    	A12:服务器写的时候给每个文件名后面+'\n'标记,客户端读的时候用bf::split函数拆分接收
 
-    Q13:测试文件?
+    	Q13:测试文件?
 
-    A13:  dd if=/dev/zero of=50M.file bs=1M count=50
+    	A13:  dd if=/dev/zero of=50M.file bs=1M count=50
 
 	Q14:如何下载?
 
-    A14: 1.客户端请求文件大小,服务器返回文件大小
+    	A14: 1.客户端请求文件大小,服务器返回文件大小
 
-			 2.客户端计算分块,多线程向服务器请求下载. 服务器响应下载
+	     2.客户端计算分块,多线程向服务器请求下载. 服务器响应下载
 
-   Q15:请求细节?
+   	Q15:请求细节?
 
-   A15:客户端组织路径HEAD请求,服务器解析路径,bf::file_size响应HEAD请求.
+   	A15:客户端组织路径HEAD请求,服务器解析路径,bf::file_size响应HEAD请求.
 
-  Q16:下载请求?
+  	Q16:下载请求?
 
- A16:客户端使用boost库线程数组和线程返回值数组,进行多线程下载请求    
+ 	A16:客户端使用boost库线程数组和线程返回值数组,进行多线程下载请求    
 
          服务器拿到分块数据,使用ifstream读取文件并放入rsp的body中返回
 
@@ -142,26 +142,26 @@ P2P下载器:
 
 	Q17:makefile?
 
-   A17:-使用了boost库的线程需要 -lbf::thread 
+   	A17:-使用了boost库的线程需要 -lbf::thread 
 
-   Q18: ifstream
+   	Q18: ifstream
 
-    A18:fstream子类,从硬盘到内存.
+    	A18:fstream子类,从硬盘到内存.
 
-     Q19:配对慢,下载慢
+     	Q19:配对慢,下载慢
 
-     A19:使用线程并行配对
+     	A19:使用线程并行配对
 
-    Q20:验证算法
+    	Q20:验证算法
 
-    A20:md5sum校验
+    	A20:md5sum校验
 
-    Q21:分块下载的线程传入参数过多
+    	Q21:分块下载的线程传入参数过多
 
-    A21:使用boost::thread
+    	A21:使用boost::thread
 
- A19:c++使用fstream默认在打开文件时截断文件,分块传输会出现问题
+ 	A22:c++使用fstream默认在打开文件时截断文件,分块传输会出现问题
 
-A19:使用系统调用接口
+	A22:使用系统调用接口
 
 
