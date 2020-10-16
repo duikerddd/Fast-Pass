@@ -55,10 +55,12 @@
   Q2:g++ -lboost_filesystem 出错 
 
   A2:使用boost/filesystem库,  在g++需要这样写 -lboost_system -lboost_filesystem
+  
 
   __Q3:关于boost/filesystem接口使用__
 
   __A3:bf::exits()  bf::create_directory  boost::split   bf::directory_iterator及其path.string()                       									bf::is_directory     bf::file_size  bf::thread__
+  
 
   Q4:如何注册回调函数?
 
