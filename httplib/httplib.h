@@ -123,24 +123,25 @@ namespace httplib {
         size_t length = 0;
     };
     typedef std::multimap<std::string, MultipartFile> MultipartFiles;
-
+    
+    //请求
     struct Request {
-        std::string version;
-        std::string method;
+        std::string version;  //版本
+        std::string method;   //方法
         std::string target;
-        std::string path;
-        Headers headers;
-        std::string body;
+        std::string path;  //请求uri
+        Headers headers;   //头部
+        std::string body;  //body
         Params params;
         MultipartFiles files;
         Match matches;
 
         Progress progress;
 
-        bool has_header(const char *key) const;
-        std::string get_header_value(const char *key, size_t id = 0) const;
-        size_t get_header_value_count(const char *key) const;
-        void set_header(const char *key, const char *val);
+        bool has_header(const char *key) const;   //查找key
+        std::string get_header_value(const char *key, size_t id = 0) const;  //获取key-value
+        size_t get_header_value_count(const char *key) const; 
+        void set_header(const char *key, const char *val); //设置key-value
 
         bool has_param(const char *key) const;
         std::string get_param_value(const char *key, size_t id = 0) const;
@@ -149,18 +150,19 @@ namespace httplib {
         bool has_file(const char *key) const;
         MultipartFile get_file_value(const char *key) const;
     };
-
+    
+    //响应
     struct Response {
-        std::string version;
-        int status;
-        Headers headers;
-        std::string body;
-        std::function<std::string(uint64_t offset)> streamcb;
+        std::string version;  //版本
+        int status;  //状态码
+        Headers headers;   //头部
+        std::string body;  //body
+        std::function<std::string(uint64_t offset)> streamcb;  
 
-        bool has_header(const char *key) const;
-        std::string get_header_value(const char *key, size_t id = 0) const;
-        size_t get_header_value_count(const char *key) const;
-        void set_header(const char *key, const char *val);
+        bool has_header(const char *key) const;   //查找key
+        std::string get_header_value(const char *key, size_t id = 0) const;  //获取key-value
+        size_t get_header_value_count(const char *key) const;  
+        void set_header(const char *key, const char *val);  //设置key-value
 
         void set_redirect(const char *uri);
         void set_content(const char *s, size_t n, const char *content_type);
@@ -169,18 +171,20 @@ namespace httplib {
         Response() : status(-1) {}
     };
 
+    //流
     class Stream {
         public:
             virtual ~Stream() {}
-            virtual int read(char *ptr, size_t size) = 0;
-            virtual int write(const char *ptr, size_t size1) = 0;
-            virtual int write(const char *ptr) = 0;
+            virtual int read(char *ptr, size_t size) = 0;  //读 指定大小
+            virtual int write(const char *ptr, size_t size1) = 0; //写 指定大小
+            virtual int write(const char *ptr) = 0;  //写
             virtual std::string get_remote_addr() const = 0;
 
             template <typename... Args>
                 void write_format(const char *fmt, const Args &... args);
     };
 
+    //套接字流
     class SocketStream : public Stream {
         public:
             SocketStream(socket_t sock);
@@ -194,7 +198,8 @@ namespace httplib {
         private:
             socket_t sock_;
     };
-
+    
+    //缓冲流
     class BufferStream : public Stream {
         public:
             BufferStream() {}
@@ -210,7 +215,8 @@ namespace httplib {
         private:
             std::string buffer;
     };
-
+    
+    //服务器
     class Server {
         public:
             typedef std::function<void(const Request &, Response &)> Handler;
@@ -287,7 +293,8 @@ namespace httplib {
             std::mutex running_threads_mutex_;
             int running_threads_;
     };
-
+  
+    //客户端
     class Client {
         public:
             Client(const char *host, int port = 80, time_t timeout_sec = 300);
