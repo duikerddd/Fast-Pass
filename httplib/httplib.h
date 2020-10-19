@@ -84,71 +84,84 @@ typedef int socket_t;
 /*
  * Configuration
  */
-#define CPPHTTPLIB_KEEPALIVE_TIMEOUT_SECOND 5
+#define CPPHTTPLIB_KEEPALIVE_TIMEOUT_SECOND 5     //长连接时间: 5分钟
 #define CPPHTTPLIB_KEEPALIVE_TIMEOUT_USECOND 0
-#define CPPHTTPLIB_KEEPALIVE_MAX_COUNT 5
-#define CPPHTTPLIB_REQUEST_URI_MAX_LENGTH 8192
+#define CPPHTTPLIB_KEEPALIVE_MAX_COUNT 5          //最大连接数: 5个
+#define CPPHTTPLIB_REQUEST_URI_MAX_LENGTH 8192    //url最大长度: 8192
 #define CPPHTTPLIB_PAYLOAD_MAX_LENGTH std::numeric_limits<size_t>::max()
 
+//命名空间httplib
 namespace httplib {
 
-    namespace detail {
+    //http版本: 1.0 = 0 / 1.1 = 1
+    enum class HttpVersion { v1_0 = 0, v1_1 };
 
+    //命名空间detail
+    namespace detail {
+        //仿函数 
         struct ci {
+            //头部 --- 升序
             bool operator()(const std::string &s1, const std::string &s2) const {
+                //封装的lexicographical_compare() --- 字典序比较
                 return std::lexicographical_compare(
                         s1.begin(), s1.end(), s2.begin(), s2.end(),
+                        //lambda表达式  tolower--转小写.  按字母总大小排序
                         [](char c1, char c2) { return ::tolower(c1) < ::tolower(c2); });
             }
         };
 
     } // namespace detail
 
-    enum class HttpVersion { v1_0 = 0, v1_1 };
-
+    //头部键值对  可重复                               字典序
     typedef std::multimap<std::string, std::string, detail::ci> Headers;
 
+    //...
     template <typename uint64_t, typename... Args>
         std::pair<std::string, std::string> make_range_header(uint64_t value,
                 Args... args);
-
+     
+    //参数<string,string>
     typedef std::multimap<std::string, std::string> Params;
+    //string类型结果?
     typedef std::smatch Match;
+    //进程函数指针   ---  function:函数模板类,充当函数指针
     typedef std::function<bool(uint64_t current, uint64_t total)> Progress;
 
+    //读取文件
     struct MultipartFile {
-        std::string filename;
-        std::string content_type;
-        size_t offset = 0;
-        size_t length = 0;
+        std::string filename;   //名字
+        std::string content_type;   //内容
+        size_t offset = 0;   //偏移
+        size_t length = 0;   //长度
     };
+    //读取的全部文件<string,读取文件>
     typedef std::multimap<std::string, MultipartFile> MultipartFiles;
     
     //请求
     struct Request {
         std::string version;  //版本
         std::string method;   //方法
-        std::string target;
+        std::string target;   //目标
         std::string path;  //请求uri
         Headers headers;   //头部
         std::string body;  //body
-        Params params;
-        MultipartFiles files;
-        Match matches;
+        Params params;     //参数<string,string>
+        MultipartFiles files;  //读取的全部文件 map
+        Match matches;         //string类型结果 
 
-        Progress progress;
+        Progress progress;   //进程函数指针
 
-        bool has_header(const char *key) const;   //查找key
-        std::string get_header_value(const char *key, size_t id = 0) const;  //获取key-value
-        size_t get_header_value_count(const char *key) const; 
-        void set_header(const char *key, const char *val); //设置key-value
+        bool has_header(const char *key) const;   //查找头部key
+        std::string get_header_value(const char *key, size_t id = 0) const;  //获取头部value
+        size_t get_header_value_count(const char *key) const;  //获取头部value数量
+        void set_header(const char *key, const char *val); //设置头部
 
-        bool has_param(const char *key) const;
-        std::string get_param_value(const char *key, size_t id = 0) const;
-        size_t get_param_value_count(const char *key) const;
+        bool has_param(const char *key) const;     //查找参数
+        std::string get_param_value(const char *key, size_t id = 0) const; //获取参数value
+        size_t get_param_value_count(const char *key) const;  //获取参数value数量
 
-        bool has_file(const char *key) const;
-        MultipartFile get_file_value(const char *key) const;
+        bool has_file(const char *key) const;   //查找文件
+        MultipartFile get_file_value(const char *key) const;   //获取文件数量
     };
     
     //响应
@@ -219,6 +232,7 @@ namespace httplib {
     //服务器
     class Server {
         public:
+            //回调函数(请求,响应)
             typedef std::function<void(const Request &, Response &)> Handler;
             typedef std::function<void(const Request &, const Response &)> Logger;
 
@@ -227,7 +241,8 @@ namespace httplib {
             virtual ~Server();
 
             virtual bool is_valid() const;
-
+            
+            //各种响应方法
             Server &Get(const char *pattern, Handler handler);
             Server &Post(const char *pattern, Handler handler);
 
@@ -241,14 +256,17 @@ namespace httplib {
             void set_error_handler(Handler handler);
             void set_logger(Logger logger);
 
+            //设置最大长连接数
             void set_keep_alive_max_count(size_t count);
             void set_payload_max_length(uint64_t length);
-
+              
+            //绑定套接字
             int bind_to_any_port(const char *host, int socket_flags = 0);
             bool listen_after_bind();
-
+            
+            //监听
             bool listen(const char *host, int port, int socket_flags = 0);
-
+             
             bool is_running() const;
             void stop();
 
@@ -260,13 +278,16 @@ namespace httplib {
             size_t payload_max_length_;
 
         private:
+            //所有注册的回调函数
             typedef std::vector<std::pair<std::regex, Handler>> Handlers;
 
+            //封装的socket/bind/listen
             socket_t create_server_socket(const char *host, int port,
                     int socket_flags) const;
             int bind_internal(const char *host, int port, int socket_flags);
             bool listen_internal();
 
+             
             bool routing(Request &req, Response &res);
             bool handle_file_request(Request &req, Response &res);
             bool dispatch_request(Request &req, Response &res, Handlers &handlers);
@@ -288,7 +309,8 @@ namespace httplib {
             Handlers options_handlers_;
             Handler error_handler_;
             Logger logger_;
-
+           
+            //服务器当前还没有实现线程池
             // TODO: Use thread pool...
             std::mutex running_threads_mutex_;
             int running_threads_;
