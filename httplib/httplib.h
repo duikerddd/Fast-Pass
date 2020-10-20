@@ -85,7 +85,7 @@ typedef int socket_t;
  * Configuration
  */
 #define CPPHTTPLIB_KEEPALIVE_TIMEOUT_SECOND 5     //长连接时间: 5分钟
-#define CPPHTTPLIB_KEEPALIVE_TIMEOUT_USECOND 0
+#define CPPHTTPLIB_KEEPALIVE_TIMEOUT_USECOND 0    
 #define CPPHTTPLIB_KEEPALIVE_MAX_COUNT 5          //最大连接数: 5个
 #define CPPHTTPLIB_REQUEST_URI_MAX_LENGTH 8192    //url最大长度: 8192
 #define CPPHTTPLIB_PAYLOAD_MAX_LENGTH std::numeric_limits<size_t>::max()
@@ -170,29 +170,30 @@ namespace httplib {
         int status;  //状态码
         Headers headers;   //头部
         std::string body;  //body
-        std::function<std::string(uint64_t offset)> streamcb;  
+        std::function<std::string(uint64_t offset)> streamcb;  //函数指针?
 
-        bool has_header(const char *key) const;   //查找key
-        std::string get_header_value(const char *key, size_t id = 0) const;  //获取key-value
-        size_t get_header_value_count(const char *key) const;  
-        void set_header(const char *key, const char *val);  //设置key-value
+        bool has_header(const char *key) const;   //查找头部key
+        std::string get_header_value(const char *key, size_t id = 0) const;  //获取头部value
+        size_t get_header_value_count(const char *key) const;   //获取头部value数
+        void set_header(const char *key, const char *val);  //设置头部
 
-        void set_redirect(const char *uri);
-        void set_content(const char *s, size_t n, const char *content_type);
-        void set_content(const std::string &s, const char *content_type);
+        void set_redirect(const char *uri);  //重定向
+        void set_content(const char *s, size_t n, const char *content_type);   //设置内容 char*
+        void set_content(const std::string &s, const char *content_type);   //设置内容 string
 
-        Response() : status(-1) {}
+        Response() : status(-1) {}   //默认响应码 -1
     };
 
-    //流
+    //io流
     class Stream {
         public:
-            virtual ~Stream() {}
+            virtual ~Stream() {}  //析构
             virtual int read(char *ptr, size_t size) = 0;  //读 指定大小
             virtual int write(const char *ptr, size_t size1) = 0; //写 指定大小
             virtual int write(const char *ptr) = 0;  //写
-            virtual std::string get_remote_addr() const = 0;
-
+            virtual std::string get_remote_addr() const = 0;   
+            
+            //
             template <typename... Args>
                 void write_format(const char *fmt, const Args &... args);
     };
