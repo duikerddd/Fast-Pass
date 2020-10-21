@@ -190,10 +190,10 @@ namespace httplib {
             virtual ~Stream() {}  //析构
             virtual int read(char *ptr, size_t size) = 0;  //读 指定大小
             virtual int write(const char *ptr, size_t size1) = 0; //写 指定大小
-            virtual int write(const char *ptr) = 0;  //写
-            virtual std::string get_remote_addr() const = 0;   
+            virtual int write(const char *ptr) = 0;  //写 
+            virtual std::string get_remote_addr() const = 0; //获取ip地址   
             
-            //
+            //多参写
             template <typename... Args>
                 void write_format(const char *fmt, const Args &... args);
     };
@@ -201,50 +201,52 @@ namespace httplib {
     //套接字流
     class SocketStream : public Stream {
         public:
-            SocketStream(socket_t sock);
-            virtual ~SocketStream();
+            SocketStream(socket_t sock);  //构造: 绑定套接字
+            virtual ~SocketStream();   //析构
 
-            virtual int read(char *ptr, size_t size);
-            virtual int write(const char *ptr, size_t size);
-            virtual int write(const char *ptr);
-            virtual std::string get_remote_addr() const;
+            virtual int read(char *ptr, size_t size);  //socket读
+            virtual int write(const char *ptr, size_t size);  //socket写
+            virtual int write(const char *ptr);    //socket写
+            virtual std::string get_remote_addr() const;   //获取ip地址
 
         private:
             socket_t sock_;
     };
     
-    //缓冲流
+    //缓冲区
     class BufferStream : public Stream {
         public:
-            BufferStream() {}
-            virtual ~BufferStream() {}
+            BufferStream() {}  //构造
+            virtual ~BufferStream() {} //析构
+ 
+            virtual int read(char *ptr, size_t size);     //缓冲区读
+            virtual int write(const char *ptr, size_t size);  //缓冲区写
+            virtual int write(const char *ptr);   //缓冲区写
+            virtual std::string get_remote_addr() const;  //获取ip地址
 
-            virtual int read(char *ptr, size_t size);
-            virtual int write(const char *ptr, size_t size);
-            virtual int write(const char *ptr);
-            virtual std::string get_remote_addr() const;
-
-            const std::string &get_buffer() const;
+            const std::string &get_buffer() const;  //获取缓冲区
 
         private:
-            std::string buffer;
+            std::string buffer;   //缓冲区
     };
     
     //服务器
     class Server {
         public:
-            //回调函数(请求,响应)
+            //函数对象<req,rsp>  
             typedef std::function<void(const Request &, Response &)> Handler;
             typedef std::function<void(const Request &, const Response &)> Logger;
-
+            
+            //构造
             Server();
-
+            //析构
             virtual ~Server();
-
+      
+            //检查对象是否有效
             virtual bool is_valid() const;
             
-            //各种响应方法
-            Server &Get(const char *pattern, Handler handler);
+            //回调函数(路径 , 处理方式)
+            Server &Get(const char *pattern, Handler handler); 
             Server &Post(const char *pattern, Handler handler);
 
             Server &Put(const char *pattern, Handler handler);
@@ -254,11 +256,13 @@ namespace httplib {
 
             bool set_base_dir(const char *path);
 
+            //设置不匹配的处理
             void set_error_handler(Handler handler);
             void set_logger(Logger logger);
 
             //设置最大长连接数
             void set_keep_alive_max_count(size_t count);
+            //设置系统最大吞吐量
             void set_payload_max_length(uint64_t length);
               
             //绑定套接字
@@ -268,7 +272,9 @@ namespace httplib {
             //监听
             bool listen(const char *host, int port, int socket_flags = 0);
              
+            //是否允许
             bool is_running() const;
+            //停止
             void stop();
 
         protected:
