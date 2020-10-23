@@ -392,6 +392,8 @@ namespace httplib {
             virtual bool is_ssl() const;
     };
 
+    
+ //...
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
     class SSLSocketStream : public Stream {
         public:
