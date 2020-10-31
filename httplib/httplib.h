@@ -90,6 +90,7 @@ typedef int socket_t;
 #define CPPHTTPLIB_REQUEST_URI_MAX_LENGTH 8192    //url最大长度: 8192
 #define CPPHTTPLIB_PAYLOAD_MAX_LENGTH std::numeric_limits<size_t>::max()
 
+// ---------------------------------------------------    整体框架   ------------------------------------------------------------
 //命名空间httplib
 namespace httplib {
 
@@ -137,7 +138,8 @@ namespace httplib {
     //读取的全部文件<string,读取文件>
     typedef std::multimap<std::string, MultipartFile> MultipartFiles;
     
-    //请求
+    //------------------------------------------------ 请求 ------------------------------------------------
+    //结构体封装请求
     struct Request {
         std::string version;  //版本
         std::string method;   //方法
@@ -164,7 +166,8 @@ namespace httplib {
         MultipartFile get_file_value(const char *key) const;   //获取文件数量
     };
     
-    //响应
+    //------------------------------------------------- 响应 ---------------------------------------------
+    //结构体封装响应
     struct Response {
         std::string version;  //版本
         int status;  //状态码
@@ -197,7 +200,6 @@ namespace httplib {
             template <typename... Args>
                 void write_format(const char *fmt, const Args &... args);
     };
-
     //套接字流
     class SocketStream : public Stream {
         public:
@@ -230,7 +232,8 @@ namespace httplib {
             std::string buffer;   //缓冲区
     };
     
-    //服务器
+    //------------------------------------------------------- 服务器 ---------------------------------------------
+    //http服务器 : 对http各种方法的请求进行响应
     class Server {
         public:
             //函数对象<req,rsp>  
@@ -323,7 +326,8 @@ namespace httplib {
             int running_threads_;
     };
   
-    //客户端
+    //-----------------------------------------------  客户端  ------------------------------------------------
+    //客户端: 组织http请求,实现各种方法的请求
     class Client {
         public:
             Client(const char *host, int port = 80, time_t timeout_sec = 300);
@@ -395,6 +399,7 @@ namespace httplib {
     
  //...
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
+    //安全套接流
     class SSLSocketStream : public Stream {
         public:
             SSLSocketStream(socket_t sock, SSL *ssl);
@@ -409,7 +414,8 @@ namespace httplib {
             socket_t sock_;
             SSL *ssl_;
     };
-
+    
+    //----------------------- 安全版服务器 --------------------
     class SSLServer : public Server {
         public:
             SSLServer(const char *cert_path, const char *private_key_path);
@@ -424,7 +430,8 @@ namespace httplib {
             SSL_CTX *ctx_;
             std::mutex ctx_mutex_;
     };
-
+    
+    //------------------------ 安全版客户端 ----------------------
     class SSLClient : public Client {
         public:
             SSLClient(const char *host, int port = 443, time_t timeout_sec = 300);
@@ -457,6 +464,7 @@ namespace httplib {
     };
 #endif
 
+    // --------------------------------------------------------------  实现部分   ------------------------------------------------------------------------
     /*
      * Implementation
      */
