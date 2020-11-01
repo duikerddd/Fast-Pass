@@ -113,7 +113,7 @@ namespace httplib {
 
     } // namespace detail
 
-    //头部键值对  可重复                               字典序
+    //head 键值对  可重复                               字典序
     typedef std::multimap<std::string, std::string, detail::ci> Headers;
 
     //...
@@ -248,7 +248,7 @@ namespace httplib {
             //检查对象是否有效
             virtual bool is_valid() const;
             
-            //回调函数(路径 , 处理方式)
+            //回调函数 请求方法(请求路径 , 处理方法)
             Server &Get(const char *pattern, Handler handler); 
             Server &Post(const char *pattern, Handler handler);
 
