@@ -470,7 +470,9 @@ namespace httplib {
      */
     namespace detail {
 
-        template <class Fn> void split(const char *b, const char *e, char d, Fn fn) {
+       
+        template <class Fn> 
+        void split(const char *b, const char *e, char d, Fn fn) {
             int i = 0;
             int beg = 0;
 
@@ -556,9 +558,13 @@ namespace httplib {
                 std::string glowable_buffer_;
         };
 
+        //关闭套接字
         inline int close_socket(socket_t sock) {
+            
+//windows closefd
 #ifdef _WIN32
             return closesocket(sock);
+//linux closefd
 #else
             return close(sock);
 #endif
