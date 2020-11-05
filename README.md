@@ -17,7 +17,7 @@
 
 	调用Listen创建监听socket ,等待连接请求(listen,accept)  
 
-									---->       客户端创建Client对象连接服务端(socket.bind)
+									---->        客户端创建Client对象连接服务端(socket.bind)
 
 									<----	     组织头部键值发起请求(connect,write)
 
@@ -50,18 +50,16 @@
 
   Q1:g++ httplib makefile 出错
 
-  A1:httplib库需要C++11支持  -std=0x /11
+  A1:httplib库需要C++11支持  -std=0x/11
 
   Q2:g++ -lboost_filesystem 出错 
 
   A2:使用boost/filesystem库,  在g++需要这样写 -lboost_system -lboost_filesystem
-  
 
   __Q3:关于boost/filesystem接口使用__
 
   __A3:bf::exits()  bf::create_directory  boost::split   bf::directory_iterator及其path.string()                       									bf::is_directory     bf::file_size  bf::thread__
   
-
   Q4:如何注册回调函数?
 
   A4:请求方法Get("请求路径",具体回调函数); 服务器实现回调函数 ; 客户端直接请求(路径)
