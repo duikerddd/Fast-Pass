@@ -48,7 +48,7 @@
 
 ### 遇到的问题:
 
-  Q1:g++ httplib makefile 出错
+  Q1:httplib makefile编译 出错
 
   A1:httplib库需要C++11支持  -std=0x/11
 
